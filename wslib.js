@@ -4,11 +4,11 @@ const fs = require("fs");
 const URL_MESSAGES_JSON = "./storage/messages.json";
 
 const clients = [];
-const messages = [];
+let messages = [];
 
 const wsConnection = (server) => {
     const wss = new WebSocket.Server({server});
-    const messages = fs.existsSync(URL_MESSAGES_JSON) ? JSON.parse(fs.readFileSync(URL_MESSAGES_JSON)) : [];
+    messages = fs.existsSync(URL_MESSAGES_JSON) ? JSON.parse(fs.readFileSync(URL_MESSAGES_JSON)) : [];
     console.log("Messages load!");
 
 
@@ -17,6 +17,16 @@ const wsConnection = (server) => {
         sendMessages();
 
         ws.on("message", (message) => {
+
+
+            if(message === "UPDATE"){
+                console.log("HOLA");
+                messages = JSON.parse(fs.readFileSync(URL_MESSAGES_JSON))
+                return sendMessages();
+            }
+            
+            else{
+
             const receivedOn = new Date();
             const newMessage = {message, author: "anStrange", ts: receivedOn.getTime()};
             messages.push(newMessage);
@@ -27,12 +37,12 @@ const wsConnection = (server) => {
             });
 
             sendMessages();
+            }
         });
+
+
     });
 
-    wss.on("close", () => {
-        console.log("Se cerró");
-    })
 
     const sendMessages = () => {
         const onlyMessages = messages.map((messageObject) => messageObject.message);

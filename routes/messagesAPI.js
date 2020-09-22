@@ -2,6 +2,8 @@ const { json } = require('express');
 const express = require('express');
 const router = express.Router();
 const fs = require("fs");
+const WebSocket = require('ws');
+const ws = new WebSocket('ws://localhost:3000');
 
 const URL_MESSAGES_JSON = "./storage/messages.json";
 
@@ -46,6 +48,7 @@ router.post('/', (req, res, next) => {
     messages.push(newMessage);
     fs.writeFile(URL_MESSAGES_JSON, JSON.stringify(messages), () => {
       res.status(200).json({status: 200, message: "Mensaje guardado correctamente"});
+      ws.send("UPDATE");
     });
   });
 });
